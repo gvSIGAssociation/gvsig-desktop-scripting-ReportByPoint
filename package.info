@@ -1,11 +1,11 @@
 #
-#Tue Oct 16 00:48:41 CEST 2018
+#Tue Oct 16 01:30:01 CEST 2018
 owner=gvSIG Association
 code=ReportByPoint
 java-version=j1_7
 official=true
 type=Script
-version=1.0.0-1
+version=1.0.0-2
 state=testing
 operating-system=all
 dependencies=
@@ -16,6 +16,6 @@ model-version=1.0.1
 categories=View
 description=Show information of a given point in a report over all layers in a view.
 owner-url=
-buildNumber=1
+buildNumber=2
 gvSIG-version=2.5.0
 name=Report by point
