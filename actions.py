@@ -62,7 +62,7 @@ def selfRegister():
   actionManager = PluginsLocator.getActionInfoManager()
   iconTheme = ToolsSwingLocator.getIconThemeManager().getCurrent()
 
-  quickinfo_icon = File(join(dirname(__file__),"images","reportbypoint1.png")).toURI().toURL()
+  quickinfo_icon = File(gvsig.getResource(__file__,"images","reportbypoint1.png")).toURI().toURL()
   iconTheme.registerDefault("scripting.reportbypoint", "action", "tools-reportbypoint", None, quickinfo_icon)
 
   reportbypoint_extension = ReportByPointExtension()
