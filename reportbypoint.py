@@ -10,6 +10,7 @@ from org.gvsig.fmap.mapcontext.layers.vectorial import SpatialEvaluatorsFactory
 from org.gvsig.fmap import IconThemeHelper
 from addons.ReportByPoint.reportbypointpanelreport import ReportByPointPanelReport
 from org.gvsig.fmap.mapcontrol.tools.Behavior import PointBehavior
+from org.gvsig.tools import ToolsLocator
 
 class ReportByPoint(object):
 
@@ -69,7 +70,9 @@ class ReportByPointListener(PointListener):
 <html>
 <body>
 """
-    text+="<p> Report for point: " + str(p) + " </p>"
+    i18nManager = ToolsLocator.getI18nManager()
+    textReportForPoint = str(i18nManager.getTranslation("_Report_for_point"))
+    text+="<p> "+textReportForPoint+" "+ str(p) + " </p>"
     for layer in layers:
       if layer.isVisible()== False:
           continue  
@@ -81,7 +84,7 @@ class ReportByPointListener(PointListener):
       reportType = layer.getProperty("reportbypoint.typereport")
 
       
-      # DEFAULT VALUES
+      ## DEFAULT VALUES
       if tableNameToUse==None:
         tableNameToUse= layer.getName()
       if fieldsToUse==None:
@@ -91,11 +94,22 @@ class ReportByPointListener(PointListener):
           oneRecord=False
       if reportType==None:
           reportType=0
-      ##
       
-      text+="<p>"+tableNameToUse+"</p>"
+      ###
+      ### Clean fieldToUse
+      ###
+      justFieldsToShow = []
+      for field in fieldsToUse:
+        if field[2]==True:
+          justFieldsToShow.append(field)
+          
 
-      ## RASTER
+      ## INIT HTML
+      text+="<p>"+tableNameToUse+"</p>"
+      
+      ##
+      ## RASTER INFO
+      ##
       if layer.getShapeType()==geom.SURFACE:
          ## Fixed projection
         layerProjection=layer.getProjection()
@@ -125,55 +139,68 @@ class ReportByPointListener(PointListener):
           try:
             value = store.getData(x,y,i)
           except:
-            value = "Out envelope"
+            value = str(i18nManager.getTranslation("_Out_of_envelope"))
           text+="<th>%s</th>"%(i)
           text+="<th>%s</th>"%(value)
           text+="</tr>"
         text +="""</table>"""
         continue
-
-      ## VECTORIAL
+      
+      ## (rest of values are vectorial)
+      ## VECTORIAL INFO
+      ##
+      precisionPoint = 0
       store = layer.getFeatureStore()
       query = store.createFeatureQuery()
       query.setFilter(SpatialEvaluatorsFactory.getInstance().intersects(p,viewProjection,store))
       #query.setLimit(1)
-      for f in fieldsToUse:
-          if f[2]==True:
-              query.addAttributeName(f[0])
+      for f in justFieldsToShow: # [attr.getName(), attr.getName(), True] 
+        # if f[2]==True:
+        query.addAttributeName(f[0])
       features = store.getFeatures(query) #,100)
       if len(features) == 0:
         #text += "-- no features found\n"
-        text+="""<i>sin entidades</i>"""
+        textNoFeatures = i18nManager.getTranslation("_No_features")
+        text+="""<i>%s</i>"""%(textNoFeatures)
         continue
       if oneRecord and len(features) > 1:
         #text += "-- more than one feature\n"
-        text+="""<i>más de una entidad seleccionada</i>"""
+        textMoreThanOne=i18nManager.getTranslation("_More_than_one_selected")
+        text+="""<i>%s</i>"""%(textMoreThanOne)
         continue
-      #if reportType
-      text +="""<table style="width:100%">"""
-      for f in features:
-        #text += "--"
-        #import pdb
-        #pdb.set_trace()
-        
-        text+= "<tr>"
-        for field in fieldsToUse:
-          text+="<th>%s</th>"%(field[1])
-        text+="</tr>"
-        text+="<tr>"
-        for field in fieldsToUse:
+      if reportType==0: ### TABLE FORMAT
+        text +="""<table style="width:100%">"""
+        for f in features:
+          text+= "<tr>"
+          for field in justFieldsToShow: #[attr.getName(), attr.getName(), True] 
+            text+="<th>%s</th>"%(field[1])
+          text+="</tr>"
+          text+="<tr>"
+          for field in justFieldsToShow:
+            nameField = field[0]
+            #showField = field[1]
+            if nameField == "GEOMETRY":
+              value = f.get(nameField) #.convertToWKT()
+            else:
+              value = f.get(nameField)
+            text+="<th>%s</th>"%(value)
+          text+="</tr>"
+        text+="</table>"
+      elif reportType==1: ### TWO COLUMNS
+        text +="""<table style="width:100%">"""
+        for field in justFieldsToShow: #[attr.getName(), attr.getName(), True] 
           nameField = field[0]
           showField = field[1]
-          if nameField == "GEOMETRY":
-            value = f.get(nameField) #.convertToWKT()
-          else:
-            value = f.get(nameField)
-          #text += showField + ": " + str(value) + ", "
-          
-          text+="<th>%s</th>"%(value)
-        #text += "\n"
-        text+="</tr>"
-      text+="</table>"
+          text+="<tr>"
+          text+="<th>%s</th>"%(showField)
+          for f in features:
+            if nameField == "GEOMETRY":
+              value = f.get(nameField) #.convertToWKT()
+            else:
+              value = f.get(nameField)
+            text+="<th>%s</th>"%(value)
+          text+="</tr>"
+        text+="</table>"
     text+="""</body>
 </html>"""
     return text
@@ -210,5 +237,6 @@ def main(*args):
   viewPanel = viewDoc.getWindowOfView()
   mapControl = viewPanel.getMapControl()
   
-  quickInfo = ReportByPoint()
-  quickInfo.setTool(mapControl)
+  reportbypoint = ReportByPoint()
+  reportbypoint.setTool(mapControl)
+  
