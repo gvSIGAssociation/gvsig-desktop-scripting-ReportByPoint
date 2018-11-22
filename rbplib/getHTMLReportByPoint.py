@@ -2,20 +2,21 @@
 
 import gvsig
 from gvsig import geom
-from reportbypointpanel import ReportByPointPanel
 
-"""
-    print self.__layer.getProperty("reportbypoint.tablenametouse")
-    print self.__layer.getProperty("reportbypoint.fields")
-    print self.__layer.getProperty("reportbypoint.onerecordreport")
-    print self.__layer.getProperty("reportbypoint.typereport")
-"""
-from org.gvsig.fmap.mapcontext.layers.vectorial import SpatialEvaluatorsFactory
 from java.awt.geom import Point2D
+from org.gvsig.fmap.mapcontext.layers.vectorial import SpatialEvaluatorsFactory
 from org.gvsig.tools import ToolsLocator
+from addons.ReportByPoint.reportbypointpanelreport import ReportByPointPanelReport
 
-def getReportByPoint(self, p):
-
+def main(*args):
+    p = geom.createPoint2D(0.4445681294, 42.562040941311)
+    mapControl = gvsig.currentView().getMainWindow().getMapControl()
+    content = getHTMLReportByPoint(p, mapControl)
+    r = ReportByPointPanelReport()
+    r.showTool("Visual")
+    r.setHTMLText(content)
+    
+def getHTMLReportByPoint(p, mapControl):
     layers = gvsig.currentView().getLayers()
     viewProjection = gvsig.currentView().getProjection()
     
@@ -31,7 +32,6 @@ def getReportByPoint(self, p):
           continue  
 
       ## Properties
-      print layer
       tableNameToUse = layer.getProperty("reportbypoint.tablenametouse")
       fieldsToUse = layer.getProperty("reportbypoint.fields")
       oneRecord =layer.getProperty("reportbypoint.onerecordreport")
@@ -104,7 +104,7 @@ def getReportByPoint(self, p):
       ## VECTORIAL INFO
       ##
       layerTolerance = layer.getDefaultTolerance()
-      tolerance = self.mapControl.getViewPort().toMapDistance(layerTolerance)
+      tolerance = mapControl.getViewPort().toMapDistance(layerTolerance)
       pBufferTolerance = p.buffer(tolerance)
                     
       store = layer.getFeatureStore()
@@ -112,28 +112,27 @@ def getReportByPoint(self, p):
       query.setFilter(SpatialEvaluatorsFactory.getInstance().intersects(pBufferTolerance,viewProjection,store))
       #query.setLimit(1)
       for f in justFieldsToShow: # [attr.getName(), attr.getName(), True] 
-        # if f[2]==True:
         query.addAttributeName(f[0])
       features = store.getFeatureSet(query) #,100)
+
       if features.getSize() == 0:
-        #text += "-- no features found\n"
         textNoFeatures = i18nManager.getTranslation("_No_features")
         text+="""<i>%s</i>"""%(textNoFeatures)
         continue
       if oneRecord and features.getSize() > 1:
-        print "SIZE FEATURE: ", features.getSize()
-        print "ONeRECORD:", oneRecord
-        #text += "-- more than one feature\n"
         textMoreThanOne=i18nManager.getTranslation("_More_than_one_selected")
         text+="""<i>%s</i>"""%(textMoreThanOne)
         continue
       if reportType==0: ### TABLE FORMAT
         text +="""<table style="width:100%">"""
+        firstIteration=0
         for f in features:
-          text+= "<tr>"
-          for field in justFieldsToShow: #[attr.getName(), attr.getName(), True] 
-            text+="<th>%s</th>"%(field[1])
-          text+="</tr>"
+          if firstIteration==0:
+            text+= "<tr>"
+            for field in justFieldsToShow: #[attr.getName(), attr.getName(), True] 
+              text+="<th>%s</th>"%(field[1])
+            text+="</tr>"
+            firstIteration+=1
           text+="<tr>"
           for field in justFieldsToShow:
             nameField = field[0]
@@ -163,43 +162,3 @@ def getReportByPoint(self, p):
     text+="""</body>
 </html>"""
     return text
-
-import gvsig
-from gvsig.libs.formpanel import FormPanel
-
-class Panel(FormPanel):
-    def __init__(self):
-        FormPanel.__init__(self, gvsig.getResource(__file__, "reportbypointpanelreport.xml"))
-        self.txpReport.setContentType("text/html")
-    def setReportHTML(self, html):
-        self.txpReport.setText(html)
-        
-def main(*args):
-    #p = geom.createPoint2D(608992.044, 4721141.865)
-    p = geom.createPoint2D(779462, 4723160)
-    p = geom.createPoint2D(0.4445681294, 42.562040941311)
-    r = ReportByPointPanel()
-    r.showTool("Visual")
-    content = getReportByPoint(None, p)
-    print content
-    r.setReportHTML(content)
-
-def main1(*args):
-    p = geom.createPoint2D(779462, 4723160)
-    
-    view = gvsig.currentView()
-    layers = view.getLayers()
-    for l in layers:
-        if l.getShapeType()==geom.SURFACE:
-            at = l.getDataStore().getAffineTransform()
-            from java.awt.geom import Point2D
-            preal = Point2D.Double(p.getX(), p.getY())
-            px = Point2D.Double()
-    
-            at.inverseTransform(preal, px)
-            x=int(px.getX())
-            y=int(px.getY())
-            print x,y
-            for i in range(0,l.getDataStore().getBandCount()):
-              print "i:",i, " value:", l.getDataStore().getData(x,y,i)
-            print px

@@ -78,8 +78,9 @@ class ReportByPointPanel(FormPanel):
     
     self.cboTypeReport.addItem(ReportFormatType(i18nManager.getTranslation("_By_table"),0))
     self.cboTypeReport.addItem(ReportFormatType(i18nManager.getTranslation("_With_two_columns"),1))
-    
-    self.setLayer(layer)
+
+    if layer != None:
+      self.setLayer(layer)
       
   def setLayer(self, layer):
     self.__layer = layer
