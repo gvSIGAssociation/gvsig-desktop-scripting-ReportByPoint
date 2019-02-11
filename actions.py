@@ -84,8 +84,8 @@ def selfRegister():
   )
   reportbypoint_action = actionManager.registerAction(reportbypoint_action)
 
-  # Añadimos la entrada "Quickinfo" en el menu herramientas
-  application.addMenu(reportbypoint_action, "tools/_ReportByPoint")
+  # Añadimos la entrada "Report by point" en el menu herramientas
+  application.addMenu(reportbypoint_action, "tools/"+i18n.getTranslation("_Report_by_point_info"))
   # Añadimos el la accion como un boton en la barra de herramientas "Quickinfo".
   application.addSelectableTool(reportbypoint_action, "ReportByPoint")
 
