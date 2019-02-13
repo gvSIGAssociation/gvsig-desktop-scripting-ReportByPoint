@@ -21,7 +21,7 @@ class ReportByPointPropertyPage(PropertiesPage):
       
   def getTitle(self):
     i18n = ToolsLocator.getI18nManager()
-    return i18n.getTranslation("_Reportbypoint")
+    return i18n.getTranslation("_Report_by_point_info")
 
   def asJComponent(self):
     return self.__panel.asJComponent()

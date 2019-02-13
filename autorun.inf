@@ -11,4 +11,6 @@ version =
 [Script]
 main = main
 Lang = python
+enable = true
+isolationGroup = gvsig-base
 

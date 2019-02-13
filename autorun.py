@@ -3,11 +3,8 @@
 import gvsig
 from gvsig import getResource
 
-import actions
-import reportbypointpropertypage
-
-reload(actions)
-reload(reportbypointpropertypage)
+from addons.ReportByPoint import actions
+from addons.ReportByPoint import reportbypointpropertypage
 
 from org.gvsig.tools import ToolsLocator
 from java.io import File
