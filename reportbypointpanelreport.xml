@@ -26,7 +26,7 @@
    </super>
    <at name="id">/home/osc/gvSIG/plugins/org.gvsig.scripting.app.mainplugin/2.5.0/scripts/addons/ReportByPoint/reportbypointpanelreport.xml</at>
    <at name="path">addons/ReportByPoint/reportbypointpanelreport.xml</at>
-   <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE</at>
+   <at name="rowspecs">CENTER:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),CENTER:DEFAULT:NONE</at>
    <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE</at>
    <at name="components">
     <object classname="java.util.LinkedList">
@@ -37,7 +37,7 @@
          <at name="cellconstraints">
           <object classname="com.jeta.forms.store.memento.CellConstraintsMemento">
            <at name="column">2</at>
-           <at name="row">4</at>
+           <at name="row">2</at>
            <at name="colspan">1</at>
            <at name="rowspan">1</at>
            <at name="halign">fill</at>
@@ -56,68 +56,8 @@
            <object classname="com.jeta.forms.store.support.PropertyMap">
             <at name="autoscrolls">true</at>
             <at name="name">jplReport</at>
-            <at name="width">1533</at>
-            <at name="height">790</at>
-           </object>
-          </at>
-         </object>
-        </at>
-       </object>
-      </at>
-     </item>
-     <item >
-      <at name="value">
-       <object classname="com.jeta.forms.store.memento.BeanMemento">
-        <super classname="com.jeta.forms.store.memento.ComponentMemento">
-         <at name="cellconstraints">
-          <object classname="com.jeta.forms.store.memento.CellConstraintsMemento">
-           <at name="column">2</at>
-           <at name="row">2</at>
-           <at name="colspan">1</at>
-           <at name="rowspan">1</at>
-           <at name="halign">default</at>
-           <at name="valign">default</at>
-           <at name="insets" object="insets">0,0,0,0</at>
-          </object>
-         </at>
-         <at name="componentclass">com.jeta.forms.gui.form.StandardComponent</at>
-        </super>
-        <at name="jetabeanclass">com.jeta.forms.gui.beans.JETABean</at>
-        <at name="beanclass">com.jeta.forms.components.label.JETALabel</at>
-        <at name="beanproperties">
-         <object classname="com.jeta.forms.store.memento.PropertiesMemento">
-          <at name="classname">com.jeta.forms.components.label.JETALabel</at>
-          <at name="properties">
-           <object classname="com.jeta.forms.store.support.PropertyMap">
-            <at name="border">
-             <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
-              <super classname="com.jeta.forms.store.properties.BorderProperty">
-               <at name="name">border</at>
-              </super>
-              <at name="borders">
-               <object classname="java.util.LinkedList">
-                <item >
-                 <at name="value">
-                  <object classname="com.jeta.forms.store.properties.DefaultBorderProperty">
-                   <super classname="com.jeta.forms.store.properties.BorderProperty">
-                    <at name="name">border</at>
-                   </super>
-                  </object>
-                 </at>
-                </item>
-               </object>
-              </at>
-             </object>
-            </at>
-            <at name="name">lblReport</at>
-            <at name="width">1533</at>
-            <at name="text">_Report</at>
-            <at name="fill">
-             <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
-              <at name="name">fill</at>
-             </object>
-            </at>
-            <at name="height">14</at>
+            <at name="width">562</at>
+            <at name="height">553</at>
            </object>
           </at>
          </object>
@@ -182,7 +122,7 @@
    <at name="cellpainters">
     <object classname="com.jeta.forms.store.support.Matrix">
      <at name="rows">
-      <object classname="[Ljava.lang.Object;" size="5">
+      <object classname="[Ljava.lang.Object;" size="3">
        <at name="item" index="0">
         <object classname="[Ljava.lang.Object;" size="3"/>
        </at>
@@ -190,12 +130,6 @@
         <object classname="[Ljava.lang.Object;" size="3"/>
        </at>
        <at name="item" index="2">
-        <object classname="[Ljava.lang.Object;" size="3"/>
-       </at>
-       <at name="item" index="3">
-        <object classname="[Ljava.lang.Object;" size="3"/>
-       </at>
-       <at name="item" index="4">
         <object classname="[Ljava.lang.Object;" size="3"/>
        </at>
       </object>

@@ -119,7 +119,7 @@ def getHTMLReportByPoint(p, mapControl):
         textNoFeatures = i18nManager.getTranslation("_No_features")
         text+="""<i>%s</i>"""%(textNoFeatures)
         continue
-      print features.getSize()
+      #print features.getSize()
       if oneRecord and features.getSize() > 1:
         textMoreThanOne=i18nManager.getTranslation("_More_than_one_selected")
         text+="""<i>%s</i>"""%(textMoreThanOne)

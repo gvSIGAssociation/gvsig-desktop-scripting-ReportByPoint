@@ -22,7 +22,7 @@ class ReportByPoint(object):
     self.__layer = None
 
   def getTooltipValue(self, point, projection):
-    return "tooltip"
+    return ""
 
   def setTool(self, mapControl):
     actives = mapControl.getMapContext().getLayers().getActives()
@@ -80,7 +80,7 @@ class ReportByPointListener(PointListener):
     report.showTool(i18nManager.getTranslation("_Report_by_point_info"))
     content = self.getReportByPoint(p)
     report.setHTMLText(content)
-    print content
+    #print content
 
     
   def point(self, event):
