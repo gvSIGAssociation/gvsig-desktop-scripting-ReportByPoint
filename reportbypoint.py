@@ -26,10 +26,10 @@ class ReportByPoint(object):
 
   def setTool(self, mapControl):
     actives = mapControl.getMapContext().getLayers().getActives()
-    if len(actives)!=1:
-      # Solo activamos la herramienta si hay una sola capa activa
-      #print "### reportbypoint.setTool: active layers != 1 (%s)" % len(actives)
-      return
+    #if len(actives)!=1:
+    #  # Solo activamos la herramienta si hay una sola capa activa
+    #  #print "### reportbypoint.setTool: active layers != 1 (%s)" % len(actives)
+    #  return
     #mode = actives[0].getProperty("reportbypoint.mode")
     #if mode in ("", None):
     #  # Si la capa activa no tiene configurado el campo a mostrar

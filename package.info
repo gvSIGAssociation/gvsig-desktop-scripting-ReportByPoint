@@ -1,11 +1,11 @@
 #
-#Wed Feb 13 18:40:00 CET 2019
+#Mon Mar 04 01:18:03 CET 2019
 owner=gvSIG Association
 code=ReportByPoint
 java-version=j1_7
 official=true
 type=Script
-version=1.0.0-7
+version=1.0.0-10
 state=testing
 operating-system=all
 dependencies=
@@ -16,7 +16,7 @@ model-version=1.0.1
 categories=View
 description=Show information of a given point in a report over all layers in a view.
 owner-url=
-buildNumber=7
-download-url=https\://github.com/gvSIGAssociation/gvsig-desktop-scripting-ReportByPoint/releases/download/1.0.0-7/gvSIG-desktop-2.5.0-ReportByPoint-1.0.0-7-testing-all-all-j1_7.gvspkg
+buildNumber=10
+download-url=https\://github.com/gvSIGAssociation/gvsig-desktop-scripting-ReportByPoint/releases/download/1.0.0-10/gvSIG-desktop-2.5.0-ReportByPoint-1.0.0-10-testing-all-all-j1_7.gvspkg
 gvSIG-version=2.5.0
 name=Report by point
