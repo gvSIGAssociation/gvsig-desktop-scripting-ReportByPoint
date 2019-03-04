@@ -7,13 +7,15 @@ from java.awt.geom import Point2D
 from org.gvsig.fmap.mapcontext.layers.vectorial import SpatialEvaluatorsFactory
 from org.gvsig.tools import ToolsLocator
 from addons.ReportByPoint.reportbypointpanelreport import ReportByPointPanelReport
+from gvsig import logger
+from gvsig import LOGGER_WARN,LOGGER_INFO,LOGGER_ERROR
 
 def main(*args):
     p = geom.createPoint2D(0.4445681294, 42.562040941311)
     mapControl = gvsig.currentView().getMainWindow().getMapControl()
     content = getHTMLReportByPoint(p, mapControl)
     r = ReportByPointPanelReport()
-    r.showTool("Visual")
+    r.showTool("Report by point")
     r.setHTMLText(content)
     
 def getHTMLReportByPoint(p, mapControl):
@@ -26,7 +28,8 @@ def getHTMLReportByPoint(p, mapControl):
 """
     i18nManager = ToolsLocator.getI18nManager()
     textReportForPoint = str(i18nManager.getTranslation("_Report_for_point"))
-    text+="<p> "+textReportForPoint+" "+ str(p) + " </p>"
+    text+="<p> "+textReportForPoint+ " </p>"
+    text+="<p> "+ str(p) + " </p>"
     for layer in layers:
       if layer.isVisible()== False:
           continue  
@@ -49,14 +52,7 @@ def getHTMLReportByPoint(p, mapControl):
       if reportType==None:
           reportType=0
       
-      ###
-      ### Clean fieldToUse
-      ###
-      justFieldsToShow = []
-      for field in fieldsToUse:
-        if field[2]==True:
-          justFieldsToShow.append(field)
-          
+
 
       ## INIT HTML
       text+="<p>"+tableNameToUse+"</p>"
@@ -65,101 +61,116 @@ def getHTMLReportByPoint(p, mapControl):
       ## RASTER INFO
       ##
       if layer.getShapeType()==geom.SURFACE:
-         ## Fixed projection
-        layerProjection=layer.getProjection()
-        pointAnalysis = p.cloneGeometry()
-        if layerProjection == viewProjection:
-          pass
-        else:
-          ICoordTrans1 = viewProjection.getCT(layerProjection)
-          pointAnalysis.reProject(ICoordTrans1)
-        text +="""<table style="width:100%">"""
-        store = layer.getDataStore()
-        at = store.getAffineTransform()
-        
-        preal = Point2D.Double(pointAnalysis.getX(), pointAnalysis.getY())
-        px = Point2D.Double()
-
-        at.inverseTransform(preal, px)
-        x=int(px.getX())
-        y=int(px.getY())
-        text+= "<tr>"
-        for field in ["Band", "Value"]:
-          text+="<th>%s</th>"%(field)
-        text+="</tr>"
-        
-        for i in range(0,store.getBandCount()):
+        ## Fixed projection
+        try:
+          layerProjection=layer.getProjection()
+          pointAnalysis = p.cloneGeometry()
+          if layerProjection == viewProjection:
+            pass
+          else:
+            ICoordTrans1 = viewProjection.getCT(layerProjection)
+            pointAnalysis.reProject(ICoordTrans1)
+          text +="""<table style="width:100%">"""
+          store = layer.getDataStore()
+          at = store.getAffineTransform()
+          
+          preal = Point2D.Double(pointAnalysis.getX(), pointAnalysis.getY())
+          px = Point2D.Double()
+  
+          at.inverseTransform(preal, px)
+          x=int(px.getX())
+          y=int(px.getY())
           text+= "<tr>"
-          try:
-            value = store.getData(x,y,i)
-          except:
-            value = str(i18nManager.getTranslation("_Out_of_envelope"))
-          text+="<th>%s</th>"%(i)
-          text+="<th>%s</th>"%(value)
+          for field in ["Band", "Value"]:
+            text+="<th>%s</th>"%(field)
           text+="</tr>"
-        text +="""</table>"""
+          
+          for i in range(0,store.getBandCount()):
+            text+= "<tr>"
+            try:
+              value = store.getData(x,y,i)
+            except:
+              value = i18nManager.getTranslation("_Out_of_envelope")
+            text+="<th>%s</th>"%(i)
+            text+="<th>%s</th>"%(value)
+            text+="</tr>"
+          text +="""</table>"""
+        except:
+          logger("Not able to calculate raster point info", LOGGER_ERROR)
         continue
       
       ## (rest of values are vectorial)
       ## VECTORIAL INFO
       ##
-      layerTolerance = layer.getDefaultTolerance()
-      tolerance = mapControl.getViewPort().toMapDistance(layerTolerance)
-      pBufferTolerance = p.buffer(tolerance)
-                    
-      store = layer.getFeatureStore()
-      query = store.createFeatureQuery()
-      query.setFilter(SpatialEvaluatorsFactory.getInstance().intersects(pBufferTolerance,viewProjection,store))
-      #query.setLimit(1)
-      for f in justFieldsToShow: # [attr.getName(), attr.getName(), True] 
-        query.addAttributeName(f[0])
-      features = store.getFeatureSet(query) #,100)
-
-      if features.getSize() == 0:
-        textNoFeatures = i18nManager.getTranslation("_No_features")
-        text+="""<i>%s</i>"""%(textNoFeatures)
-        continue
-      #print features.getSize()
-      if oneRecord and features.getSize() > 1:
-        textMoreThanOne=i18nManager.getTranslation("_More_than_one_selected")
-        text+="""<i>%s</i>"""%(textMoreThanOne)
-        continue
-      if reportType==0: ### TABLE FORMAT
-        text +="""<table style="width:100%">"""
-        firstIteration=0
-        for f in features:
-          if firstIteration==0:
-            text+= "<tr>"
-            for field in justFieldsToShow: #[attr.getName(), attr.getName(), True] 
-              text+="<th>%s</th>"%(field[1])
-            text+="</tr>"
-            firstIteration+=1
-          text+="<tr>"
-          for field in justFieldsToShow:
-            nameField = field[0]
-            #showField = field[1]
-            if nameField == "GEOMETRY":
-              value = f.get(nameField) #.convertToWKT()
-            else:
-              value = f.get(nameField)
-            text+="<th>%s</th>"%(value)
-          text+="</tr>"
-        text+="</table>"
-      elif reportType==1: ### TWO COLUMNS
-        text +="""<table style="width:100%">"""
-        for field in justFieldsToShow: #[attr.getName(), attr.getName(), True] 
-          nameField = field[0]
-          showField = field[1]
-          text+="<tr>"
-          text+="<th>%s</th>"%(showField)
+      
+      ### Clean fieldToUse
+      ###
+      try:
+        justFieldsToShow = []
+        for field in fieldsToUse:
+          if field[2]==True:
+            justFieldsToShow.append(field)
+  
+            
+        layerTolerance = layer.getDefaultTolerance()
+        tolerance = mapControl.getViewPort().toMapDistance(layerTolerance)
+        pBufferTolerance = p.buffer(tolerance)
+                      
+        store = layer.getFeatureStore()
+        query = store.createFeatureQuery()
+        query.setFilter(SpatialEvaluatorsFactory.getInstance().intersects(pBufferTolerance,viewProjection,store))
+        #query.setLimit(1)
+        for f in justFieldsToShow: # [attr.getName(), attr.getName(), True] 
+          query.addAttributeName(f[0])
+        features = store.getFeatureSet(query) #,100)
+  
+        if features.getSize() == 0:
+          textNoFeatures = i18nManager.getTranslation("_No_features")
+          text+="""<i>%s</i>"""%(textNoFeatures)
+          continue
+        #print features.getSize()
+        if oneRecord and features.getSize() > 1:
+          textMoreThanOne=i18nManager.getTranslation("_More_than_one_selected")
+          text+="""<i>%s</i>"""%(textMoreThanOne)
+          continue
+        if reportType==0: ### TABLE FORMAT
+          text +="""<table style="width:100%">"""
+          firstIteration=0
           for f in features:
-            if nameField == "GEOMETRY":
-              value = f.get(nameField) #.convertToWKT()
-            else:
-              value = f.get(nameField)
-            text+="<th>%s</th>"%(value)
-          text+="</tr>"
-        text+="</table>"
+            if firstIteration==0:
+              text+= "<tr>"
+              for field in justFieldsToShow: #[attr.getName(), attr.getName(), True] 
+                text+="<th>%s</th>"%(field[1])
+              text+="</tr>"
+              firstIteration+=1
+            text+="<tr>"
+            for field in justFieldsToShow:
+              nameField = field[0]
+              #showField = field[1]
+              if nameField == "GEOMETRY":
+                value = f.get(nameField) #.convertToWKT()
+              else:
+                value = f.get(nameField)
+              text+="<th>%s</th>"%(value)
+            text+="</tr>"
+          text+="</table>"
+        elif reportType==1: ### TWO COLUMNS
+          text +="""<table style="width:100%">"""
+          for field in justFieldsToShow: #[attr.getName(), attr.getName(), True] 
+            nameField = field[0]
+            showField = field[1]
+            text+="<tr>"
+            text+="<th>%s</th>"%(showField)
+            for f in features:
+              if nameField == "GEOMETRY":
+                value = f.get(nameField) #.convertToWKT()
+              else:
+                value = f.get(nameField)
+              text+="<th>%s</th>"%(value)
+            text+="</tr>"
+          text+="</table>"
+      except:
+        logger("Not able to calculate vectorial point info", LOGGER_ERROR)
     text+="""</body>
 </html>"""
     return text
